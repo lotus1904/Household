@@ -76,21 +76,36 @@ class BudgetManager {
     }
 
     // Save transaction to date-specific JSON file
-    saveTransactionToDateFile(transaction) {
+    async saveTransactionToDateFile(transaction) {
         try {
             const dateKey = `transactions_${transaction.date}`; // e.g., transactions_2026-02-07
             
-            // Load existing transactions for this date
+            // Save to localStorage (for backward compatibility and offline access)
             let dateData = localStorage.getItem(dateKey);
             let dateTransactions = dateData ? JSON.parse(dateData) : { date: transaction.date, transactions: [] };
-
-            // Add new transaction
             dateTransactions.transactions.push(transaction);
-
-            // Save back to localStorage
             localStorage.setItem(dateKey, JSON.stringify(dateTransactions, null, 2));
             
-            console.log(`Transaction saved to ${dateKey}.json`);
+            // Also save to JSON file via API (if deployed on Netlify)
+            try {
+                const response = await fetch('/api/transactions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(transaction)
+                });
+                
+                if (response.ok) {
+                    console.log(`Transaction saved to ${dateKey}.json via API`);
+                } else {
+                    console.log('API not available, using localStorage only');
+                }
+            } catch (apiError) {
+                // API not available (running locally), just use localStorage
+                console.log('Running in local mode, using localStorage only');
+            }
+            
         } catch (error) {
             console.error('Error saving transaction:', error);
             alert('Error saving transaction. Please try again.');
@@ -98,28 +113,44 @@ class BudgetManager {
     }
 
     // Delete transaction from its date-specific file
-    deleteTransactionFromDateFile(transaction) {
+    async deleteTransactionFromDateFile(transaction) {
         try {
             const dateKey = `transactions_${transaction.date}`;
             
-            // Load existing transactions for this date
+            // Delete from localStorage
             let dateData = localStorage.getItem(dateKey);
-            if (!dateData) return;
+            if (dateData) {
+                let dateTransactions = JSON.parse(dateData);
+                dateTransactions.transactions = dateTransactions.transactions.filter(
+                    t => t.id !== transaction.id
+                );
 
-            let dateTransactions = JSON.parse(dateData);
+                if (dateTransactions.transactions.length === 0) {
+                    localStorage.removeItem(dateKey);
+                    console.log(`Deleted empty file: ${dateKey}.json`);
+                } else {
+                    localStorage.setItem(dateKey, JSON.stringify(dateTransactions, null, 2));
+                }
+            }
 
-            // Remove the transaction
-            dateTransactions.transactions = dateTransactions.transactions.filter(
-                t => t.id !== transaction.id
-            );
-
-            // If no transactions left for this date, delete the file
-            if (dateTransactions.transactions.length === 0) {
-                localStorage.removeItem(dateKey);
-                console.log(`Deleted empty file: ${dateKey}.json`);
-            } else {
-                // Otherwise, save updated transactions
-                localStorage.setItem(dateKey, JSON.stringify(dateTransactions, null, 2));
+            // Also delete from JSON file via API (if deployed on Netlify)
+            try {
+                const response = await fetch('/api/transactions', {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        date: transaction.date,
+                        transactionId: transaction.id
+                    })
+                });
+                
+                if (response.ok) {
+                    console.log(`Transaction deleted from ${dateKey}.json via API`);
+                }
+            } catch (apiError) {
+                console.log('API not available, using localStorage only');
             }
         } catch (error) {
             console.error('Error deleting transaction:', error);

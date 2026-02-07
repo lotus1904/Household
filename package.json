@@ -1,0 +1,22 @@
+{
+  "name": "household-budget-manager",
+  "version": "1.0.0",
+  "description": "A modern household budget tracking application",
+  "main": "index.html",
+  "scripts": {
+    "dev": "netlify dev",
+    "build": "echo 'No build step required'",
+    "deploy": "netlify deploy --prod"
+  },
+  "keywords": [
+    "budget",
+    "expense-tracker",
+    "household",
+    "finance"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "netlify-cli": "^17.0.0"
+  }
+}

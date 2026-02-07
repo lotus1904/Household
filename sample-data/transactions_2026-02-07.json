@@ -1,0 +1,32 @@
+{
+  "date": "2026-02-07",
+  "transactions": [
+    {
+      "id": "txn_1707301234567",
+      "date": "2026-02-07",
+      "amount": 1500,
+      "category": "Groceries",
+      "description": "Monthly grocery shopping",
+      "memberId": "member_001",
+      "createdAt": "2026-02-07T10:30:00.000Z"
+    },
+    {
+      "id": "txn_1707301234568",
+      "date": "2026-02-07",
+      "amount": 500,
+      "category": "Utilities",
+      "description": "Electricity bill",
+      "memberId": "member_002",
+      "createdAt": "2026-02-07T14:15:00.000Z"
+    },
+    {
+      "id": "txn_1707301234569",
+      "date": "2026-02-07",
+      "amount": 800,
+      "category": "Transportation",
+      "description": "Fuel for car",
+      "memberId": "member_001",
+      "createdAt": "2026-02-07T16:45:00.000Z"
+    }
+  ]
+}
